@@ -1,6 +1,6 @@
 # include config
-$job1Path = Split-Path -Parent $MyInvocation.MyCommand.Path
-. (Join-Path $job1Path "../conf/config.job1.ps1")
+$configPath = Split-Path -Parent $MyInvocation.MyCommand.Path
+. (Join-Path $configPath "../conf/job1.config.ps1")
 
 # check & make folder
 New-Item (Join-Path $csvPath (Join-Path "upload" $jobId)) -ItemType Directory -Force
@@ -15,49 +15,29 @@ foreach ($uploadCsv in $fileList) {
 
     try {
         $utf8NoBomEncoding = New-Object System.Text.UTF8Encoding $False
-        # remove duplicate lines and overwrite
+        $logger.INFO("Convert Shift-JIS to UTF-8N, and copy upload csv to backup csv")
         [System.IO.File]::WriteAllLines($uploadCsv, (Get-Content $uploadCsv | Sort-Object | Get-Unique), $utf8NoBomEncoding)
         
         # TODO: upload to azure
-        
-        # DEBUG: throw error
-        if ($debugErr.ToLower() -eq "true") {
-            throw "err"
-        }
-        
-        # TODO: if upload success
-        if ($debugSuccess.ToLower() -eq "true") {
-            Read-Host "Copy upload csv to backup csv"
-        }
+    
+        $logger.INFO("Copy upload csv to backup csv")
         Move-Item $uploadCsv ((Join-Path $backupPath ($uploadCsv.BaseName + "_backup.csv"))) -force
-        if ($debugSuccess.ToLower() -eq "true") {
-            Read-Host "Remove tmp csv"
-        }
+
+        $logger.INFO("Remove tmp csv")
         Remove-Item $tmpCsv
         
-        # debug log example
-        if ($debugLog.ToLower() -eq "true") {
-            Write-Output "log: Success"
-        }
+        $logger.INFO("Upload success")
     }
     catch {
-        # debug log example
-        if ($debugLog.ToLower() -eq "true") {
-            Write-Output "log: Failured"
-        }
+        $logger.Error("Upload failured")
 
-        # TODO: if process failure
-        if ($debugErr.ToLower() -eq "true") {
-            Read-Host "Copy tmp csv to upload csv"
-        }
+        $logger.INFO("Copy tmp csv to upload csv")
         Copy-Item $tmpCsv $uploadCsv
-        if ($debugErr.ToLower() -eq "true") {
-            Read-Host "Copy tmp csv to reject csv"
-        }
+
+        $logger.INFO("Copy tmp csv to reject csv")
         Copy-Item $tmpCsv ((Join-Path $rejectPath ($uploadCsv.BaseName + "_reject.csv")))
-        if ($debugErr.ToLower() -eq "true") {
-            Read-Host "Remove tmp csv"
-        }
+
+        $logger.INFO("Remove tmp csv")
         Remove-Item $tmpCsv
     }
 }
