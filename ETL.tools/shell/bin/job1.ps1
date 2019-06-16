@@ -1,11 +1,6 @@
-# get script path
+# include config
 $scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Path
-
-# set upload path
-$uploadPath = Join-Path $scriptPath "/../../csv/upload"
-
-# debug print
-# Write-Host $uploadPath
+. (Join-Path $scriptPath "../conf/config.job1.ps1")
 
 # check upload foler
 if (!(Test-Path $uploadPath)) {
@@ -14,17 +9,7 @@ if (!(Test-Path $uploadPath)) {
 
 $fileList = Get-ChildItem $uploadPath/* -include *.csv | Sort-Object LastWriteTime
 foreach ($uploadCsv in $fileList) {
-    $uploadFile = $uploadCsv.BaseName + $uploadCsv.Extension
-
-    $tmpPath = Join-Path $scriptPath "/../../csv/tmp"
     $tmpCsv = ((Join-Path $tmpPath ($uploadCsv.BaseName + "_tmp.csv")))
-
-    $rejectPath = Join-Path $scriptPath "/../../csv/reject"
-    $rejectCsv = ((Join-Path $rejectPath $uploadFile))
-
-    $backupPath = Join-Path $scriptPath "/../../csv/backup"
-    $backupCsv = ((Join-Path $backupPath $uploadFile))
-
     Copy-Item $uploadCsv $tmpCsv
 
     try {
@@ -33,21 +18,45 @@ foreach ($uploadCsv in $fileList) {
         [System.IO.File]::WriteAllLines($uploadCsv, (Get-Content $uploadCsv | Sort-Object | Get-Unique), $utf8NoBomEncoding)
         
         # TODO: upload to azure
-    
-        # TODO: if upload success
-        Move-Item $uploadCsv $backupCsv -force
-        Remove-Item $tmpCsv
-
+        
         # DEBUG: throw error
-        # throw "err"
+        if ($debugErr.ToLower() -eq "true") {
+            throw "err"
+        }
+        
+        # TODO: if upload success
+        if ($debugSuccess.ToLower() -eq "true") {
+            Read-Host "Copy upload csv to backup csv"
+        }
+        Move-Item $uploadCsv ((Join-Path $backupPath ($uploadCsv.BaseName + "_backup.csv"))) -force
+        if ($debugSuccess.ToLower() -eq "true") {
+            Read-Host "Remove tmp csv"
+        }
+        Remove-Item $tmpCsv
+        
+        # debug log example
+        if ($debugLog.ToLower() -eq "true") {
+            Write-Output "log: Success"
+        }
     }
     catch {
+        # debug log example
+        if ($debugLog.ToLower() -eq "true") {
+            Write-Output "log: Failured"
+        }
+
         # TODO: if process failure
-        # Read-Host "Copy tmp csv to upload csv"
+        if ($debugErr.ToLower() -eq "true") {
+            Read-Host "Copy tmp csv to upload csv"
+        }
         Copy-Item $tmpCsv $uploadCsv
-        # Read-Host "Copy tmp csv to reject csv"
-        Copy-Item $tmpCsv $rejectCsv
-        # Read-Host "Remove tmp csv"
+        if ($debugErr.ToLower() -eq "true") {
+            Read-Host "Copy tmp csv to reject csv"
+        }
+        Copy-Item $tmpCsv ((Join-Path $rejectPath ($uploadCsv.BaseName + "_reject.csv")))
+        if ($debugErr.ToLower() -eq "true") {
+            Read-Host "Remove tmp csv"
+        }
         Remove-Item $tmpCsv
     }
 }

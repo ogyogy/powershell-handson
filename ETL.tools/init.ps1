@@ -1,8 +1,6 @@
-$scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Path
-New-Item $scriptPath"/logs" -ItemType Directory -Force
-New-Item $scriptPath"/csv/upload" -ItemType Directory -Force
-New-Item $scriptPath"/csv/backup" -ItemType Directory -Force
-New-Item $scriptPath"/csv/reject" -ItemType Directory -Force
-New-Item $scriptPath"/csv/tmp" -ItemType Directory -Force
-New-Item $scriptPath"/shell/bin" -ItemType Directory -Force
-New-Item $scriptPath"/shell/conf" -ItemType Directory -Force
+Remove-Item "./csv/upload/job1/*.csv"
+Remove-Item "./csv/tmp/job1/*.csv"
+Remove-Item "./csv/reject/job1/*.csv"
+Remove-Item "./csv/backup/job1/*.csv"
+Remove-Item "./csv/upload/job1/*.csv"
+Copy-Item test.csv (Join-Path ./csv/upload/job1 ((Get-Date -Format yyyyMMddhhmmss) + ".csv"))
