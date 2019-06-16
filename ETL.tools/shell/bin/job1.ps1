@@ -17,5 +17,7 @@ foreach ($file in $fileList) {
     $tmpPath = Join-Path $scriptPath "/../../csv/tmp"
     Copy-Item $file ((Join-Path $tmpPath ($file.BaseName + "_tmp.csv")))
     $utf8NoBomEncoding = New-Object System.Text.UTF8Encoding $False
-    [System.IO.File]::WriteAllLines($file, (Get-Content $file), $utf8NoBomEncoding)
+    # remove duplicate lines and overwrite
+    [System.IO.File]::WriteAllLines($file, (Get-Content $file | Sort-Object | Get-Unique), $utf8NoBomEncoding)
+
 }
