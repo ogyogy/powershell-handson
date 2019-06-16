@@ -16,4 +16,6 @@ $fileList = Get-ChildItem $uploadPath/* -include *.csv | Sort-Object LastWriteTi
 foreach ($file in $fileList) {
     $tmpPath = Join-Path $scriptPath "/../../csv/tmp"
     Copy-Item $file ((Join-Path $tmpPath ($file.BaseName + "_tmp.csv")))
+    $utf8NoBomEncoding = New-Object System.Text.UTF8Encoding $False
+    [System.IO.File]::WriteAllLines($file, (Get-Content $file), $utf8NoBomEncoding)
 }
