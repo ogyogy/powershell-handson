@@ -1,6 +1,6 @@
 # include config
-$scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Path
-. (Join-Path $scriptPath "../conf/config.job1.ps1")
+$job1Path = Split-Path -Parent $MyInvocation.MyCommand.Path
+. (Join-Path $job1Path "../conf/config.job1.ps1")
 
 # check & make folder
 New-Item (Join-Path $csvPath (Join-Path "upload" $jobId)) -ItemType Directory -Force
