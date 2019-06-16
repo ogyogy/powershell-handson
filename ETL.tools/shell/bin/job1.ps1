@@ -2,10 +2,11 @@
 $scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Path
 . (Join-Path $scriptPath "../conf/config.job1.ps1")
 
-# check upload foler
-if (!(Test-Path $uploadPath)) {
-    -ErrorAction Stop
-}
+# check & make folder
+New-Item (Join-Path $csvPath (Join-Path "upload" $jobId)) -ItemType Directory -Force
+New-Item (Join-Path $csvPath (Join-Path "tmp" $jobId)) -ItemType Directory -Force
+New-Item (Join-Path $csvPath (Join-Path "reject" $jobId)) -ItemType Directory -Force
+New-Item (Join-Path $csvPath (Join-Path "backup" $jobId)) -ItemType Directory -Force
 
 $fileList = Get-ChildItem $uploadPath/* -include *.csv | Sort-Object LastWriteTime
 foreach ($uploadCsv in $fileList) {
