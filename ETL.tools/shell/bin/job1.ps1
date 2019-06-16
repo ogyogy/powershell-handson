@@ -2,18 +2,18 @@
 $scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Path
 
 # set upload path
-$uploadName = "/../../csv/upload"
-$uploadPath = $scriptPath + $uploadName
+$uploadPath = Join-Path $scriptPath "/../../csv/upload"
 
 # debug print
-Write-Host $uploadPath
+# Write-Host $uploadPath
 
 # check upload foler
-if (Test-Path $uploadPath)
-{
-    Write-Host "Success"
+if (!(Test-Path $uploadPath)) {
+    -ErrorAction Stop
 }
-else
-{
-    Write-Host "Rejected"
+
+$fileList = Get-ChildItem $uploadPath/* -include *.csv | Sort-Object LastWriteTime
+foreach ($file in $fileList) {
+    $tmpPath = Join-Path $scriptPath "/../../csv/tmp"
+    Copy-Item $file ((Join-Path $tmpPath ($file.BaseName + "_tmp.csv")))
 }
