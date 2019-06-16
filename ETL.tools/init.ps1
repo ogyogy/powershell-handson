@@ -1,6 +1,7 @@
-Remove-Item "./csv/upload/job1/*.csv"
-Remove-Item "./csv/tmp/job1/*.csv"
-Remove-Item "./csv/reject/job1/*.csv"
-Remove-Item "./csv/backup/job1/*.csv"
-Remove-Item "./csv/upload/job1/*.csv"
-Copy-Item test.csv (Join-Path ./csv/upload/job1 ((Get-Date -Format yyyyMMddhhmmss) + ".csv"))
+$configPath = Split-Path -Parent $MyInvocation.MyCommand.Path
+Remove-Item (Join-Path $configPath "/csv/upload/job1/*.csv")
+Remove-Item (Join-Path $configPath "/csv/tmp/job1/*.csv")
+Remove-Item (Join-Path $configPath "/csv/reject/job1/*.csv")
+Remove-Item (Join-Path $configPath "/csv/backup/job1/*.csv")
+Remove-Item (Join-Path $configPath "/csv/upload/job1/*.csv")
+Copy-Item (Join-Path $configPath "test.csv") (Join-Path (Join-Path $configPath "/csv/upload/job1") ((Get-Date -Format yyyyMMddhhmmss) + ".csv"))
